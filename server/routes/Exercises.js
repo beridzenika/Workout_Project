@@ -3,29 +3,103 @@ const router  = express.Router();
 
 router.use(express.json());
 
-const { Exercises } = require("../models");
+const { Exercises, Muscles } = require("../models");
 
 // GET
 router.get('/', async (req, res) => {
-    const ListOfExercises = await Exercises.findAll();
-    res.json(ListOfExercises);
+    try {
+        const exercises = await Exercises.findAll({
+            include: [
+                {
+                    model: Muscles,
+                    through: { attributes: [] },
+                },
+            ],
+        });
+        res.status(200).json(exercises);
+    }
+    catch (err) {
+        res.status(500).json(err);
+    }
 });
 
 router.get('/:id', async (req, res) => {
-    const id = parseInt(req.params.id);
-    const exercise = await Exercises.findByPk(id);
+    try {
+        const id = Number(req.params.id);
+        if (isNaN(id)) {
+            return res.status(400).json({
+                error: "Invalid exercise ID"
+            });
+        }
+        
+        const exercise = await Exercises.findByPk(id, {
+            include: [
+                {
+                    model: Muscles,
+                    through: { attributes: [] }
+                }
+            ]
+        });
 
-    if(!exercise) {
-        return res.status(404).json({error: 'Exercise not found'});
+        if(!exercise) {
+            return res.status(404).json({error: 'Exercise not found'});
+        }
+        res.status(200).json(exercise);
     }
-    res.json(exercise);
+    catch (err) {
+        res.status(500).json(err);
+    }
 });
 
 // POST
 router.post('/', async (req, res) => {
-    const newExercise = req.body;
-    await Exercises.create(newExercise);
-    res.status(201).json(newExercise);
+    try {
+        const {
+            name,
+            type_id,
+            default_sets,
+            default_reps,
+            default_weight,
+            description,
+            progression_from,
+            muscles,
+        } = req.body;
+        console.log(req.body);
+        
+        const exercise = await Exercises.create({
+            name,
+            type_id,
+            default_sets,
+            default_reps,
+            default_weight,
+            description,
+            progression_from,
+        });
+
+        if (muscles && muscles.length > 0) {
+            const muscleInstances = await Promise.all(
+                muscles.map(async (muscleName) => {
+                    const [muscle] = await Muscles.findOrCreate({
+                        where: { name: muscleName },
+                    });
+                    return muscle;
+                })
+            );
+            await exercise.addMuscles(muscleInstances);
+        }
+
+        const result = await Exercises.findByPk(exercise.id, {
+            include: {
+                model: Muscles,
+                through: { attributes: [] },
+            },
+        });
+    
+        res.status(201).json(result);
+    }
+    catch (err) {
+        res.status(500).json(err);
+    }
 });
 
 
