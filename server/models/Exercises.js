@@ -41,6 +41,9 @@ module.exports = (sequelize, DataTypes) => {
         Exercises.belongsToMany(models.Muscles, {
             through: "ExerciseMuscles",
         });
+        Exercises.belongsTo(models.ExerciseTypes, {
+            foreignKey: "type_id",
+        });
     };
 
     return Exercises;

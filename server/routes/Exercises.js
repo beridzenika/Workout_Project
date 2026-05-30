@@ -3,13 +3,16 @@ const router  = express.Router();
 
 router.use(express.json());
 
-const { Exercises, Muscles } = require("../models");
+const { Exercises, Muscles, ExerciseTypes } = require("../models");
 
 // GET
 router.get('/', async (req, res) => {
     try {
         const exercises = await Exercises.findAll({
             include: [
+                {
+                    model: ExerciseTypes,
+                },
                 {
                     model: Muscles,
                     through: { attributes: [] },
@@ -35,9 +38,12 @@ router.get('/:id', async (req, res) => {
         const exercise = await Exercises.findByPk(id, {
             include: [
                 {
+                    model: ExerciseTypes,
+                },
+                {
                     model: Muscles,
                     through: { attributes: [] }
-                }
+                },
             ]
         });
 
@@ -64,7 +70,6 @@ router.post('/', async (req, res) => {
             progression_from,
             muscles,
         } = req.body;
-        console.log(req.body);
         
         const exercise = await Exercises.create({
             name,
