@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: false,
             },
             default_sets: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.TINYINT,
                 allowNull: false,
             },
             default_reps: {
@@ -43,6 +43,11 @@ module.exports = (sequelize, DataTypes) => {
         });
         Exercises.belongsTo(models.ExerciseTypes, {
             foreignKey: "type_id",
+        });
+        Exercises.belongsToMany(models.Plans, {
+            through: models.PlanExercises,
+            foreignKey: "exercise_id",
+            otherKey: "plan_id",
         });
     };
 
