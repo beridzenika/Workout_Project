@@ -8,7 +8,7 @@ const db = require("./models");
 app.use("/exercises", require('./routes/Exercises'));
 app.use("/plans", require('./routes/Plans'));
 
-// db.sequelize.sync({alter: true}).then(()=> {
+
 db.sequelize.sync().then(()=> {
     
     app.listen(4000, () => {
