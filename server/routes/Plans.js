@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-router.use(express.json());
-
 const { Plans, Exercises } = require("../models");
 
 // GET

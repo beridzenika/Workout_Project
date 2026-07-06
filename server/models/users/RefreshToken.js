@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
         },
     }, {
         tableName: 'refresh_tokens',
-        timesteps: true,
+        timestamps: true,
     });
 
     RefreshToken.associate = (models) => {

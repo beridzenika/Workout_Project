@@ -5,9 +5,11 @@ const app = express();
 const db = require("./models");
 
 // routers
+app.use(express.json());
+
 app.use("/exercises", require('./routes/Exercises'));
 app.use("/plans", require('./routes/Plans'));
-
+app.use("/auth", require('./routes/auth/authRoutes'));
 
 db.sequelize.sync().then(()=> {
     
