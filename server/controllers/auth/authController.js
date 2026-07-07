@@ -1,6 +1,39 @@
-const { use } = require("react");
-const { User } = require("../../models");
+const { User, RefreshToken } = require("../../models");
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+
+const day5 = 5 * 24 * 60 * 60 * 1000;
+
+function generateTokens(userId, username) {
+    const accessToken = jwt.sign(
+        {
+            id: userId,
+            username: username,
+        },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: "15m",
+        }
+    );
+
+    const refreshToken = crypto.randomBytes(64).toString("hex");
+    return {accessToken, refreshToken};
+}
+
+function setRefreshCookie(res, token) {
+    res.cookie('refreshToken', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: day5,
+    })
+}
+
+
+function hashToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
 
 exports.register = async (req, res) => {
     try {
@@ -19,13 +52,13 @@ exports.register = async (req, res) => {
             where: {email}
         });
         if (existingEmail) {
-            return res.status(409).json({message: "Email is already in use"});
+            return res.status(409).json({message: 'Email is already in use'});
         }
         const existingUser = await User.findOne({
             where: {username}
         });
         if (existingUser) {
-            return res.status(409).json({message: "Username is already taken"});
+            return res.status(409).json({message: 'Username is already taken'});
         }
 
         //create user
@@ -39,23 +72,77 @@ exports.register = async (req, res) => {
             display_name: display_name || username,
         });
 
+        //tokens
+        const { accessToken, refreshToken } = generateTokens(user.id, user.username);
 
+        await RefreshToken.create ({
+            user_id: user.id,
+            token_hash: hashToken(refreshToken),
+            expires_at: new Date(Date.now() + day5),
+        })
 
-
-
-
+        setRefreshCookie(res, refreshToken);
+            
         res.status(201).json({
             user: {
                 id: user.id,
                 username: user.username,
                 email: user.email,
                 display_name: user.display_name,
-                password_hash: user.password_hash,
             },
+            accessToken: accessToken,
         });
+
     }
     catch(err) {
         res.status(500).json({message: err.message});
     }
     
+}
+
+exports.login = async (req, res) => {
+    try {
+        const {email, password} = req.body;
+        
+        //validation
+        if(!email || !password) {
+            return res.status(400).json({message: 'Email and password required'});
+        }
+
+        const user = await User.findOne({where: {email}});
+        if(!user) {
+            return res.status(401).json({message: 'Invalid credentials'});
+        }
+
+        const valid = await bcrypt.compare(password, user.password_hash);
+        if(!valid) {
+            return res.status(401).json({message: 'Invalid credentials'});
+        }
+
+        //tokens
+        const { accessToken, refreshToken } = generateTokens(user.id, user.username);
+
+        await RefreshToken.create({
+            user_id: user.id,
+            token_hash: hashToken(refreshToken),
+            expires_at: new Date(Date.now() + day5),
+        });
+
+        await user.update({last_login_at: new Date()});
+
+        setRefreshCookie(res, refreshToken);
+
+        res.status(200).json({
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                display_name: user.display_name,
+            },
+            accessToken: accessToken,
+        });
+
+    } catch (err) {
+        res.status(500).json({message: err.message})
+    }
 }
