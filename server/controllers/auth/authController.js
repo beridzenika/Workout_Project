@@ -26,6 +26,7 @@ function setRefreshCookie(res, token) {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
+        path: '/',
         maxAge: day5,
     })
 }
@@ -146,6 +147,61 @@ exports.login = async (req, res) => {
         res.status(500).json({message: err.message})
     }
 }
+
+exports.refresh = async (req, res) => {
+    try {
+        const cookieToken = req.cookies.refreshToken;
+
+        if(!cookieToken) {
+            return res.status(401).json({message: 'No refresh token'});
+        }
+
+        const tokenHash = crypto.createHash('sha256').update(cookieToken).digest('hex');
+        
+        const storedToken = await RefreshToken.findOne({
+            where: {
+                token_hash: tokenHash,
+                revoked: false,
+            },
+            include: [{
+                model: User,
+                attributes: ['id', 'username', 'email'],
+            }],
+        });
+
+        if (!storedToken) {
+            return res.status(401).json({message: 'Invalid refresh token'});
+        }
+
+        if (new Date() > new Date(storedToken.expires_at)) {
+            await storedToken.destroy();
+
+            return res.status(401).json({message: 'Refresh token expired, please log in again'});
+        }
+
+        const {accessToken, refreshToken: newRefreshToken } = generateTokens(
+            storedToken.User.id,
+            storedToken.User.username
+        );
+        await storedToken.destroy();
+        
+        await RefreshToken.create({
+            user_id: storedToken.User.id,
+            token_hash: crypto.createHash('sha256').update(newRefreshToken).digest('hex'),
+            expires_at: new Date(Date.now() + day5),
+        });
+
+        setRefreshCookie(res, newRefreshToken);
+        
+        res.json({accessToken});
+    }
+    catch(err) {
+        return res.status(500).json({message: err.message})
+    }
+}
+
+
+
 
 exports.me = async (req, res) => {
     try {
