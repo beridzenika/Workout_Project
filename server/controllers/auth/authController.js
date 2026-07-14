@@ -36,7 +36,7 @@ function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 
-exports.register = async (req, res) => {
+exports.register = async (req, res, next) => {
     try {
         const {
             username,
@@ -96,12 +96,12 @@ exports.register = async (req, res) => {
 
     }
     catch(err) {
-        res.status(500).json({message: err.message});
+        next(err);
     }
     
 }
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
     try {
         const {email, password} = req.body;
         
@@ -144,11 +144,11 @@ exports.login = async (req, res) => {
         });
 
     } catch (err) {
-        res.status(500).json({message: err.message})
+        next(err);
     }
 }
 
-exports.refresh = async (req, res) => {
+exports.refresh = async (req, res, next) => {
     try {
         const cookieToken = req.cookies.refreshToken;
 
@@ -156,7 +156,7 @@ exports.refresh = async (req, res) => {
             return res.status(401).json({message: 'No refresh token'});
         }
 
-        const tokenHash = crypto.createHash('sha256').update(cookieToken).digest('hex');
+        const tokenHash = hashToken(cookieToken);
         
         const storedToken = await RefreshToken.findOne({
             where: {
@@ -187,7 +187,7 @@ exports.refresh = async (req, res) => {
         
         await RefreshToken.create({
             user_id: storedToken.User.id,
-            token_hash: crypto.createHash('sha256').update(newRefreshToken).digest('hex'),
+            token_hash: hashToken(newRefreshToken),
             expires_at: new Date(Date.now() + day5),
         });
 
@@ -196,14 +196,38 @@ exports.refresh = async (req, res) => {
         res.json({accessToken});
     }
     catch(err) {
-        return res.status(500).json({message: err.message})
+        next(err);
     }
 }
 
+exports.logout = async (req, res, next) => {
+    try {
+        const cookieToken = req.cookies.refreshToken;
+        
+        if(cookieToken) {
+            const tokenHash = hashToken(cookieToken);
 
+            await RefreshToken.update(
+                {revoked: true},
+                {where: {token_hash: tokenHash}}
+            );
+        }
 
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            path: '/',
+        });
 
-exports.me = async (req, res) => {
+        res.json({message: 'Logged out successfully'});
+    }
+    catch(err) {
+        next(err);
+    }
+}
+
+exports.me = async (req, res, next) => {
     try {
         const user = await User.findByPk(req.user.id, {
             attributes: ['id', 'username', 'email', 'display_name', 'last_login_at', 'createdAt'],
@@ -216,6 +240,6 @@ exports.me = async (req, res) => {
         res.json({user});
     
     } catch (err) {
-        res.status(500).json({message: err.message});
+        next(err);
     }
 }
