@@ -26,13 +26,7 @@ module.exports = (sequelize, DataTypes) => {
             tableName: "plan_exercises",
         }
     );
-    // PlanExercises.associate = (models) => {
-    //     PlanExercises.belongsTo(models.Plans, {
-    //         foreignKey: "plan_id",
-    //     });
-    //     PlanExercises.belongsTo(models.Exercises, {
-    //         foreignKey: "exercise_id",
-    //     });
-    // }
+    
+    
     return PlanExercises;
 }

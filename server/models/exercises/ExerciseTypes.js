@@ -1,5 +1,3 @@
-const { ForeignKeyConstraintError } = require("sequelize");
-
 module.exports = (sequelize, DataTypes) => {
 
     const ExerciseTypes = sequelize.define(

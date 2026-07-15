@@ -22,13 +22,19 @@ module.exports = (sequelize, DataTypes) => {
     );
 
     Plans.associate = (models) => {
-        // Plans.hasMany(models.PlanExercises, {
-        //     foreignKey: "plan_id"
-        // });
+        
         Plans.belongsToMany(models.Exercises, {
             through: models.PlanExercises,
             foreignKey: "plan_id",
             otherKey: "exercise_id",
+        });
+
+        Plans.belongsToMany(models.Days, {
+            through: "PlanDays",
+        });
+
+        Plans.belongsTo(models.Schedules, {
+            foreignKey: "schedule_id",
         });
     }
 

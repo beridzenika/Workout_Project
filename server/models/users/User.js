@@ -44,8 +44,12 @@ module.exports = (sequelize, DataTypes) => {
 
     User.associate = (models) => {
         User.hasMany(models.RefreshToken, {
-            foreignKey: 'user_id',
-            onDelete: 'CASCADE',
+            foreignKey: "user_id",
+            onDelete: "CASCADE",
+        });
+
+        User.hasMany(models.Schedules, {
+            foreignKey: "user_id",
         });
     };
 

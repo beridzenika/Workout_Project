@@ -30,7 +30,13 @@ module.exports = (sequelize, DataTypes) => {
             progression_from: {
                 type: DataTypes.INTEGER,
                 allowNull: true,
+            },
+            progression_to: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
             }
+            // TODO: progression can be seperate as exercise can branch to
+            //       multiple progressions
         },
         {
             tableName: "exercises",
@@ -44,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
         Exercises.belongsTo(models.ExerciseTypes, {
             foreignKey: "type_id",
         });
+        
         Exercises.belongsToMany(models.Plans, {
             through: models.PlanExercises,
             foreignKey: "exercise_id",
