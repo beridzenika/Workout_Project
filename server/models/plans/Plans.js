@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
         "Plans",
         {
             schedule_id: {
-                type: DataTypes.BOOLEAN,
+                type: DataTypes.INTEGER,
                 allowNull: false,
             },
             name: {
