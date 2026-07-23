@@ -1,4 +1,4 @@
-const {Plans, Exercises, PlanExercises, Days} = require('../../models')
+const {Plans, Exercises, ExerciseTypes, Muscles, PlanExercises, Days} = require('../../models')
 
 exports.getAll = async (req, res, next) => {
     try {
@@ -29,6 +29,26 @@ exports.getById = async (req, res, next) => {
                     through: {attributes:[]},
                     attributes: ['id', 'name'],
                 },
+                {
+                    model: Exercises,
+                    through: {
+                        attributes: ['order_index', 'rest']
+                    },
+                    attributes: ['id', 'name'],
+                    order: [[PlanExercises, 'order_index', 'ASC']],
+                    
+                    include: [
+                        {
+                            model: ExerciseTypes,
+                            attributes: ['id', 'name'],
+                        },
+                        {
+                            model: Muscles,
+                            through:{attributes:[]},
+                            attributes: ["id", "name"],
+                        }
+                    ]
+                }
             ],
         });
         
@@ -44,24 +64,75 @@ exports.getById = async (req, res, next) => {
     }
 }
 
-exports.create = async (req, res, next) => {
+exports.createPlan = async (req, res, next) => {
     try {
-        const {schedule_id, name, plan_type, days} = req.body;
+        const {schedule_id, name, plan_type, day_ids} = req.body;
         
         if(!schedule_id || !name || !plan_type) {
             return res.status(400).json({message: 'schedule_id, name and plan_type are required.'});
         }
-
+        if(!day_ids?.length) {
+            return res.status(400).json({message: 'need to choose days.'});
+        }
+        
         const validTypes = ['main', 'warmup', 'cooldown', 'cardio'];
         if(!validTypes.includes(plan_type)) {
             return res.status(400).json({message: `plan_type must be one of: ${validTypes.join(', ')}`});
         }
 
-        const plan = await Plans.create({schedule_id, name, plan_type});
-
-        res.status(201).json({ plan: created });
+        const plan = await Plans.create({
+            schedule_id,
+            name,
+            plan_type,
+        });
+        
+        const days = await Days.findAll({where: {id: day_ids}});
+        await plan.setDays(days);
+        
+        const created = await Plans.findByPk( plan.id, {
+            include: [
+                {
+                    model: Days,
+                    through: {attributes:[]},
+                    attributes: ['id', 'name'],
+                }
+            ]
+        })
+        console.log(created);
+        res.status(201).json({ created });
 
     } 
+    catch(err) {
+        next(err);
+    }
+}
+
+exports.addExercise = async (req, res, next) => {
+    try {
+        const {exercise_id, order_index, rest} = req.body;
+
+        console.log(exercise_id, req.params.id, order_index, rest);
+        if(!exercise_id || order_index === undefined) {
+            return res.status(400).json({message: 'exercise_id and order_id are required.'});
+        }
+
+        const plan = await Plans.findByPk(req.params.id);
+        if(!plan) {
+            return res.status(404).json({message: 'Plan not found.'});
+        }
+        const exercise = await Exercises.findByPk(exercise_id);
+        if(!exercise) {
+            return res.status(404).json({message: 'Exercise not found.'});
+        }
+
+        await PlanExercises.create({
+            plan_id: plan.id,
+            exercise_id,
+            order_index,
+            rest: rest ?? 30,
+        });
+        res.status(201).json({message: 'exercise added to plan'});
+    }
     catch(err) {
         next(err);
     }
