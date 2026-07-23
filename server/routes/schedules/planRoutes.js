@@ -5,6 +5,6 @@ const PlanController = require('../../controllers/schedules/planController');
 router.get('/', PlanController.getAll);
 router.get('/:id', PlanController.getById);
 router.post('/', PlanController.createPlan);
-router.post('/:id/exercises', PlanController.addExercise);
+router.post('/:id/exercises', PlanController.addExercises);
 
 module.exports = router;

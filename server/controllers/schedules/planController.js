@@ -110,8 +110,7 @@ exports.createPlan = async (req, res, next) => {
 exports.addExercise = async (req, res, next) => {
     try {
         const {exercise_id, order_index, rest} = req.body;
-
-        console.log(exercise_id, req.params.id, order_index, rest);
+        
         if(!exercise_id || order_index === undefined) {
             return res.status(400).json({message: 'exercise_id and order_id are required.'});
         }
@@ -120,6 +119,7 @@ exports.addExercise = async (req, res, next) => {
         if(!plan) {
             return res.status(404).json({message: 'Plan not found.'});
         }
+
         const exercise = await Exercises.findByPk(exercise_id);
         if(!exercise) {
             return res.status(404).json({message: 'Exercise not found.'});
@@ -134,6 +134,45 @@ exports.addExercise = async (req, res, next) => {
         res.status(201).json({message: 'exercise added to plan'});
     }
     catch(err) {
+        next(err);
+    }
+}
+exports.addExercises = async (req, res, next) => {
+    try {
+        const exercises = req.body.exercises;
+        
+        if(!Array.isArray(exercises) || exercises.length === 0) {
+            return res.status(400).json({message: 'exercises array required'});
+        }
+
+        const plan = await Plans.findByPk(req.params.id);
+        if(!plan) {
+            return res.status(404).json({message: 'Plan not found.'});
+        }
+
+        const invalid = exercises.some(e => !e.exercise_id);
+        if(invalid) {
+            return res.status(400).json({message: 'Every exerscise should have exercise_id and order_index'});
+        }
+
+        const exercise_ids = exercises.map(e => e.exercise_id);
+        const existingExercises = await Exercises.findAll({where: {id: exercise_ids}});
+        
+        if(existingExercises.length !== exercise_ids.length) {
+            return res.status(400).json({message: 'One or more exercises do not exist.'})
+        }
+
+        const rows = exercises.map( exercise => ({
+            plan_id: plan.id,
+            exercise_id: exercise.exercise_id,
+            order_index: exercise.order_index,
+            rest: exercise.rest ?? 30,
+        }));
+        await PlanExercises.bulkCreate(rows);
+        
+        res.status(201).json('Exercises added to the plan succesfully');
+
+    } catch (err) {
         next(err);
     }
 }
