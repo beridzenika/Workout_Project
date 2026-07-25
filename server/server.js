@@ -12,6 +12,7 @@ app.use(cookieParser());
 // routers
 app.use("/exercises", require('./routes/Exercises'));
 app.use("/plans", require('./routes/schedules/planRoutes'));
+app.use("/schedules", require('./routes/schedules/scheduleRoutes'));
 app.use("/auth", require('./routes/auth/authRoutes'));
 
 //error handler

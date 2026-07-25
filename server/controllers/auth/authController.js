@@ -2,6 +2,7 @@ const { User, RefreshToken } = require("../../models");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { ref } = require("process");
 
 const day5 = 5 * 24 * 60 * 60 * 1000;
 
@@ -141,6 +142,7 @@ exports.login = async (req, res, next) => {
                 display_name: user.display_name,
             },
             accessToken: accessToken,
+            refreshToken: refreshToken,
         });
 
     } catch (err) {
