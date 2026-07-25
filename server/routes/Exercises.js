@@ -7,6 +7,7 @@ const { Exercises, Muscles, ExerciseTypes } = require("../models");
 // GET
 router.get('/', async (req, res) => {
     try {
+        //TODO: pagination
         const exercises = await Exercises.findAll({
             include: [
                 {

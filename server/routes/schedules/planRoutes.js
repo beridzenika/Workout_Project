@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const PlanController = require('../../controllers/schedules/planController');
+const authenticate = require('../../middleware/auth/authenticate');
 
 //add authenticate
 router.get('/', PlanController.getAll);

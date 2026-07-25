@@ -4,7 +4,8 @@ const ScheduleController = require('../../controllers/schedules/scheduleControll
 const authenticate = require('../../middleware/auth/authenticate');
 
 
-router.get('/', authenticate,  ScheduleController.getAll);
+router.get('/', ScheduleController.getAll);
+router.get('/:id', ScheduleController.getById);
 router.post('/', authenticate, ScheduleController.create);
 
 module.exports = router;

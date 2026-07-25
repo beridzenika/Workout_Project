@@ -1,5 +1,6 @@
-const {Plans, Schedules, Users } = require('../../models');
-const { Op } = require('sequelize');
+const {Plans, Schedules, User, Days } = require('../../models');
+const { Op, where } = require('sequelize');
+const { addExercise } = require('./planController');
 
 exports.getAll = async (req, res, next) => {
     try {
@@ -7,10 +8,16 @@ exports.getAll = async (req, res, next) => {
             where: {
                 [Op.or]: [
                     {is_public: true},
-                    {user_id: req.user.id},
+                    ...(req.user? [{user_id: req.user.id}] : []),
                 ],
             },
             attributes: ['id', 'name', 'description', 'is_public', 'user_id', 'createdAt'],
+            include: [
+                {
+                    model: User,
+                    attributes: ['id', 'username'],
+                },
+            ],
             order: [['createdAt', 'DESC']],
         });
         res.json({schedules});
@@ -19,6 +26,41 @@ exports.getAll = async (req, res, next) => {
         next(err);
     }
 }
+exports.getById = async (req, res, next) => {
+    try {
+        
+        const schedule = await Schedules.findByPk(req.params.id, {
+            include: [
+                {
+                    model: Plans,
+
+                    include: [
+                        {
+                            model: Days,
+                            through: {attributes:[]},
+                            attributes:['id', 'name'],
+                        },
+                    ],
+                    attributes: ['id', 'name', 'plan_type'],
+                },
+            ],
+        });
+
+        if(!schedule) {
+            return res.status(404).json({message: 'Schedule not found'});
+        }
+        if(!schedule.is_public && schedule.user !== req.user_id) {
+            return res.status(404).json({message: 'Schedule not found'});
+        }
+
+        res.json({schedule});
+
+    } catch (err) {
+        next(err);
+    }
+}
+
+
 
 exports.create = async (req, res, next) => {
     try {
