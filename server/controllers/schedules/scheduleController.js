@@ -142,14 +142,18 @@ exports.create = async (req, res, next) => {
     try {
         const {name, description, is_public} = req.body;
         
-        const created = await Schedules.create({
-            //user_id
+        if(!name || !description) {
+            return res.status(400).json({message: 'name and description required'});
+        }
+
+        const schedule = await Schedules.create({
             name,
             description,
-            is_public
+            is_public: is_public ?? false,
+            user_id: req.user.id,
         })
 
-        res.status(201).json('schedule created');
+        res.status(201).json(schedule);
     }
     catch(err) {
         next(err);

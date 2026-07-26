@@ -1,14 +1,21 @@
 const {Plans, Exercises, ExerciseTypes, Muscles, PlanExercises, Days} = require('../../models');
+const Schedules = require('../../models').Schedules;
 
 exports.getAll = async (req, res, next) => {
     try {
         const plans = await Plans.findAll({
             include: [
-                //TODO: filter through schedules
                 {
                     model: Days,
                     through: {attributes: [] },
                     attributes: ['id', 'name'],
+                }
+            ],
+            include: [
+                {
+                    model: Schedules,
+                    where: {user_id: req.user.id},
+                    attributes: [],
                 }
             ]
         });
@@ -34,7 +41,7 @@ exports.getById = async (req, res, next) => {
                     through: {
                         attributes: ['order_index', 'rest']
                     },
-                    attributes: ['id', 'name'],
+                    attributes: ['id', 'name', 'default_sets', 'default_reps', 'default_weight'],
                     order: [[PlanExercises, 'order_index', 'ASC']],
                     
                     include: [
@@ -55,7 +62,13 @@ exports.getById = async (req, res, next) => {
         if(!plan) {
             return res.status(404).json({message: 'Plan not found'});
         }
-        //TODO: add schedule
+        
+        const schedule = await Schedules.findOne({
+            where: { id: plan.schedule_id, user_id: req.user.id },
+        });
+        if (!schedule) {
+            return res.status(404).json({ message: 'Plan not found' });
+        }
 
         res.json({plan});
     }
@@ -131,6 +144,7 @@ exports.addExercise = async (req, res, next) => {
             order_index,
             rest: rest ?? 30,
         });
+        
         res.status(201).json({message: 'exercise added to plan'});
     }
     catch(err) {
