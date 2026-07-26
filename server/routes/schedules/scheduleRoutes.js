@@ -6,6 +6,8 @@ const authenticate = require('../../middleware/auth/authenticate');
 
 router.get('/', ScheduleController.getAll);
 router.get('/:id', ScheduleController.getById);
+router.get('/:id/day/:day', ScheduleController.getByDay);
+
 router.post('/', authenticate, ScheduleController.create);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const {Plans, Schedules, User, Days } = require('../../models');
+const {Plans, Schedules, User, Days, Exercises, ExerciseTypes, PlanExercises, Muscles } = require('../../models');
 const { Op, where } = require('sequelize');
 const { addExercise } = require('./planController');
 
@@ -60,7 +60,83 @@ exports.getById = async (req, res, next) => {
     }
 }
 
+exports.getByDay = async (req, res, next) => {
+    try {
+        const {id, day} = req.params;
 
+        const schedule = await Schedules.findByPk(id);
+
+        if(!schedule) {
+            return res.status(404).json({message: 'Schedule not found'});
+        }
+        if(!schedule.is_public && schedule.user_id !== req.user.id) {
+            return res.status(404).json({message: 'Schedule not found'});
+        }
+
+        const dayRow = await Days.findOne({
+            where: {id: day},
+            attributes: ['id', 'name'],
+        });
+
+        if (!dayRow) {
+            return res.status(400).json({ message: 'day is not a valid' });
+        }
+
+        const plans = await Plans.findAll({
+            where: {schedule_id: schedule.id},
+            include: [
+                {
+                    model: Days,
+                    through: {
+                        attributes: [],
+                        where: {DayId: dayRow.id},
+                    },
+                    attributes: [],
+                    required: true,
+                },
+                {
+                    model: Exercises,
+                    through: {attributes: []},
+                    attributes: [
+                        'id', 
+                        'name', 
+                        'default_sets', 
+                        'default_reps', 
+                        'default_weight', 
+                        'description',
+                    ],
+                    include: [
+                        {
+                            model: ExerciseTypes,
+                            attributes: ['id', 'name'],
+                        },
+                        {
+                            model: Muscles,
+                            through: {attributes: []},
+                            attributes: ['id', 'name'],
+                        }
+                    ],
+                    order: [[{model: PlanExercises}, 'order_index', 'ASC']],
+                }
+            ]
+        });
+
+        const grouped = {
+            warmup:   plans.find(p => p.plan_type === 'warmup')   ?? null,
+            main:     plans.find(p => p.plan_type === 'main')     ?? null,
+            cooldown: plans.find(p => p.plan_type === 'cooldown') ?? null,
+        }
+
+        res.status(200).json({
+            schedule: {id: schedule.id, name: schedule.name},
+            day: dayRow.name,
+            plans: grouped,
+        });
+    }
+    catch(err) {
+        next(err);
+    }
+}
 
 exports.create = async (req, res, next) => {
     try {
