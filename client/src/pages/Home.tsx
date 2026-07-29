@@ -12,17 +12,14 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   
   useEffect(()=> {
-    console.log(import.meta.env);
     const fetchCards = async () => {
       try {
         setLoading(true);
-
         const schedules = await getData('schedules');
         console.log(schedules);
-        
         const modifiedCards: Card[] = schedules.map(schedule => ({
           title: schedule.name,
-          subtitle: `${5} days/week ~ ${45} min`, //TODO change with real data
+          subtitle: `${schedule.total_days} days/week ~ ${45} min`, //TODO change with real data
         }));
         
         setCards(modifiedCards);

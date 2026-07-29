@@ -18,6 +18,7 @@ export interface Schedules {
     description: string;
     is_public: boolean;
     user_id: number;
+    total_days: number;
     createdAt: string;
     Plans: Plan[];
 }
@@ -31,10 +32,10 @@ export const getData = async (URL): Promise<Schedules[]> => {
         }
     });
     const data = await res.json();
-    console.log(data);
+    
     if(!res.ok) {
         throw new Error(data.message || 'Failed to fetch data');
     }
 
-    return data.schedules;
+    return data.data;
 }

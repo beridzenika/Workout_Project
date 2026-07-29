@@ -17,10 +17,35 @@ exports.getAll = async (req, res, next) => {
                     model: User,
                     attributes: ['id', 'username'],
                 },
+                {
+                    model: Plans,
+                    include: [
+                        {
+                            model: Days,
+                            through: {attributes:[]},
+                            attributes:['id'],
+                        },
+                    ],
+                    attributes:['id']
+                }
             ],
             order: [['createdAt', 'DESC']],
         });
-        res.json({schedules});
+
+        const data = schedules.map(schedule => {
+            const json = schedule.toJSON();
+            console.log(json.Plans);
+            const total_days = new Set(
+                (json.Plans ?? []).flatMap(plan => 
+                    (plan.Days ?? []).map(day=>day.id))
+            ).size;
+            delete json.Plans;
+            return {
+                ...json, total_days,
+            }
+        })
+
+        res.json({data});
     }
     catch(err) {
         next(err);
