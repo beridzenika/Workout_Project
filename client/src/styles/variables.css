@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Jockey+One&display=swap');
+
+:root {
+    --gray50: #fff;
+    --gray100: #F3F4F6;
+    --gray200: #E5E7EB;
+    --gray300: #D1D5DC;
+    --gray400: #99A1AF;
+    --gray500: #99A1AF;
+    --gray600: #4A5565;
+    --gray700: #4A5565;
+    --gray800: #1E2939;
+    --gray900: #101828;
+    --gray950: #030712;
+
+    --primary50: #FFF7ED;
+    --primary100: #FFEDD4;
+    --primary200: #FFD6A7;
+    --primary300: #FFB86A;
+    --primary400: #FF8904;
+    --primary500: #FF6900;
+    --primary600: #F54900;
+    --primary700: #CA3500;
+    --primary800: #9F2D00;
+    --primary900: #531E0B;
+    --primary950: #1F0A04;
+    
+    --error: #F4161A;
+    --warning: #f4a316;
+    --success: #1dc31d;
+}

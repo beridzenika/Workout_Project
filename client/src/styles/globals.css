@@ -1,0 +1,62 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    
+    font-family: "Jockey One", sans-serif;
+    font-weight: 400;
+}
+
+body { 
+    height: 100vh; 
+    background: var(--gray950); 
+}
+
+header, main {
+    margin: 20px;
+}
+
+/* logo */
+.logo {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.logo img {
+    background-color: var(--primary700);
+    padding: 10px;
+    border-radius: 18px;
+}
+
+/* fonts */
+.text-heading {
+    color: var(--gray50);
+    font-size: 36px;
+}
+.text-title {
+    font-size: 24px;
+    color: var(--gray300);
+}
+.text-subtitle {
+    font-size: 16px;
+    color: var(--gray400);
+}
+.text-error {
+    color: var(--error);
+}
+.text-loading {
+    color: var(--warning);
+}
+
+/* boxes */
+.plan-box {
+    width: 100%;
+    padding: 15px;
+    margin: 14px 0;
+    border: 2px solid var(--gray400);
+    border-radius: 25px;
+    background-color: var(--gray900);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
