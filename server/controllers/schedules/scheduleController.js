@@ -34,12 +34,13 @@ exports.getAll = async (req, res, next) => {
 
         const data = schedules.map(schedule => {
             const json = schedule.toJSON();
-            console.log(json.Plans);
+            
             const total_days = new Set(
                 (json.Plans ?? []).flatMap(plan => 
                     (plan.Days ?? []).map(day=>day.id))
             ).size;
             delete json.Plans;
+            
             return {
                 ...json, total_days,
             }

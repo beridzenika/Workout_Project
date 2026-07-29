@@ -111,7 +111,6 @@ exports.createPlan = async (req, res, next) => {
                 }
             ]
         })
-        console.log(created);
         res.status(201).json({ created });
 
     } 

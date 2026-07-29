@@ -1,3 +1,18 @@
+@keyframes wobble {
+  25% {
+    transform: rotate(5deg);
+  }
+  50% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+  10% {
+    transform: rotate(-5deg);
+  }
+}
+
 *{
     margin: 0;
     padding: 0;
@@ -22,10 +37,21 @@ header, main {
     gap: 8px;
     align-items: center;
 }
-.logo img {
+.logo-box {
     background-color: var(--primary700);
     padding: 10px;
     border-radius: 18px;
+}
+.icon:hover {
+    animation: wobble 0.5s;
+}
+
+.auth-logo {
+    margin: 80px;
+}
+.auth-logo .logo-box {
+    padding: 18px;
+    margin: 10px;
 }
 
 /* fonts */
@@ -40,6 +66,14 @@ header, main {
 .text-subtitle {
     font-size: 16px;
     color: var(--gray400);
+}
+.text-dark {
+    color: var(--gray700);
+    font-size: 18px;
+}
+.text-link {
+    color: var(--primary700);
+    text-decoration: none;
 }
 .text-error {
     color: var(--error);
@@ -59,4 +93,63 @@ header, main {
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+
+/* buttons */
+.primary-btn{
+    background-color: var(--primary700);
+    border-radius: 15px;
+    color: var(--gray50);
+    font-size: 24px;
+    border: none;
+    padding: 12px;
+    width: 100%;
+}
+
+
+/* icons */
+.field-icon {
+    color: var(--gray400);
+
+}
+
+
+.auth-container {
+    text-align: center;
+}
+
+.auth-form {
+    margin: auto;
+    padding: 20px 50px;
+    max-width: 600px;
+    width: 100%;
+}
+
+.auth-form input {
+    background-color: var(--gray900);
+    border: 2px solid var(--gray400);
+    color: var(--gray200);
+    border-radius: 10px;
+    padding: 15px;
+    padding-right: 3rem;
+    font-size: 20px;
+    margin-bottom: 14px;
+    width: 100%;
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+.field-icon {
+  position: absolute;
+  right: 1rem;
+  top: 15px;
+  width: 30px;
+  height: 30px;
+  pointer-events: auto;
+}
+
+.auth-footer {
+    margin: 18px;
 }

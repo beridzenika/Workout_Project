@@ -16,7 +16,7 @@ function Dashboard() {
       try {
         setLoading(true);
         const schedules = await getData('schedules');
-        console.log(schedules);
+
         const modifiedCards: Card[] = schedules.map(schedule => ({
           title: schedule.name,
           subtitle: `${schedule.total_days} days/week ~ ${45} min`, //TODO change with real data
