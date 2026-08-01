@@ -142,7 +142,6 @@ exports.login = async (req, res, next) => {
                 display_name: user.display_name,
             },
             accessToken: accessToken,
-            refreshToken: refreshToken,
         });
 
     } catch (err) {
