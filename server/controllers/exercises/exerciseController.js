@@ -60,7 +60,7 @@ exports.getAll = async (req, res, next) => {
         }
 
         const exercises = await Exercises.findAndCountAll(query);
-        x
+
         res.status(200).json(exercises);
     }
     catch (err) {
