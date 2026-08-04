@@ -1,5 +1,4 @@
-const {Plans, Exercises, ExerciseTypes, Muscles, PlanExercises, Days} = require('../../models');
-const Schedules = require('../../models').Schedules;
+const {Schedules, Plans, Exercises, ExerciseTypes, Muscles, PlanExercises, Days} = require('../../models');
 
 exports.getAll = async (req, res, next) => {
     try {

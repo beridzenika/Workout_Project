@@ -10,7 +10,7 @@ app.use(cors());
 app.use(cookieParser());
 
 // routers
-app.use("/exercises", require('./routes/Exercises'));
+app.use("/exercises", require('./routes/exercises/exercisesRoutes'));
 app.use("/plans", require('./routes/schedules/planRoutes'));
 app.use("/schedules", require('./routes/schedules/scheduleRoutes'));
 app.use("/auth", require('./routes/auth/authRoutes'));
