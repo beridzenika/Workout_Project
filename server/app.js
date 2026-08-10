@@ -11,6 +11,9 @@ app.use(cookieParser());
 
 // routers
 app.use("/exercises", require('./routes/exercises/exercisesRoutes'));
+app.use("/muscles", require('./routes/exercises/muscleRoutes'));
+app.use("/exercisetypes", require('./routes/exercises/exerciseTypeRoutes'));
+
 app.use("/plans", require('./routes/schedules/planRoutes'));
 app.use("/schedules", require('./routes/schedules/scheduleRoutes'));
 app.use("/auth", require('./routes/auth/authRoutes'));
