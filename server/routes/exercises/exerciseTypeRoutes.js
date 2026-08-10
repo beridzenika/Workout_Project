@@ -4,7 +4,8 @@ const ExerciseTypeController = require("../../controllers/exercises/exerciseType
 const authenticate = require('../../middleware/auth/authenticate');
 
 router.get("/", ExerciseTypeController.getAll);
-router.post("/", authenticate, ExerciseTypeController.create);
+router.post("/", ExerciseTypeController.create);
+// router.post("/", authenticate, ExerciseTypeController.create);
 router.delete("/:id", authenticate, ExerciseTypeController.delete);
 
 module.exports = router;

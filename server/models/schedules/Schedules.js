@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
         "Schedules",
         {
             user_id: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.INTEGER.UNSIGNED,
                 allowNull: false,
             },
             name: {

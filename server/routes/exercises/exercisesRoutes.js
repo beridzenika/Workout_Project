@@ -7,6 +7,7 @@ const authenticate = require('../../middleware/auth/authenticate');
 router.get('/', ExerciseController.getAll);
 router.get('/:id', ExerciseController.getById);
 
-router.post('/', authenticate, ExerciseController.create);
+router.post('/', ExerciseController.create);
+// router.post('/', authenticate, ExerciseController.create);
 
 module.exports = router;
