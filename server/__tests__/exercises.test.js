@@ -2,6 +2,7 @@ const request = require('supertest');
 const app = require('../app');
 const expectCookies = require('supertest/lib/cookies');
 
+//exercise types
 describe('POST /exerciseTypes', () => {
     test('should create exercise type', async () => {
         const typeData = {
@@ -41,33 +42,34 @@ describe('GET /exerciseTypes', () => {
      })
 });
 
-// describe('POST /muscles', () => {
-//     test('should create muscles', async () => {
-//         const muscleData = [
-//             {
-//                 name: 'chest',
-//             },
-//             {
-//                 name: 'legs',
-//             }
-//         ];
+//muscles
+describe('POST /muscles', () => {
+    test('should create muscles', async () => {
+        const muscleData = [
+            {
+                name: 'chest',
+            },
+            {
+                name: 'legs',
+            }
+        ];
 
-//        for (const muscle of muscleData) {
-//             const response = await request(app)
-//                 .post('/muscles')
-//                 .send(muscle);
+       for (const muscle of muscleData) {
+            const response = await request(app)
+                .post('/muscles')
+                .send(muscle);
 
-//             expect(response.status).toBe(201);
+            expect(response.status).toBe(201);
 
-//             expect(response.body).toEqual(
-//                 expect.objectContaining({
-//                     id: expect.any(Number),
-//                     name: muscle.name,
-//                 })
-//             );
-//         }
-//     });
-// });
+            expect(response.body).toEqual(
+                expect.objectContaining({
+                    id: expect.any(Number),
+                    name: muscle.name,
+                })
+            );
+        }
+    });
+});
 
 describe('GET /muscles', () => { 
     test('should get all exercise types', async () => { 
@@ -87,6 +89,7 @@ describe('GET /muscles', () => {
      })
 });
 
+//exercises
 describe('POST /exercises', () => {
     test('should create exercise', async () => {
         const exerciseData = {
@@ -98,7 +101,7 @@ describe('POST /exercises', () => {
             description: 'Test exercise description',
             progression_from: null,
             progression_to: null,
-            muscles: [1, 2],
+            muscle_ids: [1, 2],
         };
 
         const response = await request(app)
@@ -121,18 +124,18 @@ describe('POST /exercises', () => {
             })
         );
 
-        // expect(response.Muscles).toEqual(
-        //     expect.arrayContaining([
-        //         expect.objectContaining({
-        //             id: 1,
-        //             name: expect.any(String),
-        //         }),
-        //         expect.objectContaining({
-        //             id: 2,
-        //             name: expect.any(String),
-        //         }),
-        //     ])
-        // )
+        expect(response.body.Muscles).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    id: 1,
+                    name: expect.any(String),
+                }),
+                expect.objectContaining({
+                    id: 2,
+                    name: expect.any(String),
+                }),
+            ])
+        )
     });
 })
 
@@ -163,4 +166,7 @@ describe('GET exercises', () => {
 
         });
     })
- })
+});
+
+
+//TODO: delete apis

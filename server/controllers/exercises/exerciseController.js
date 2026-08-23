@@ -119,9 +119,24 @@ exports.create = async (req, res, next) => {
             default_weight,
             description,
             progression_from,
-            muscles,
+            progress_to,
+            muscle_ids,
         } = req.body;
-        
+ 
+ 
+        const muscles = await Muscles.findAll({
+            where: {
+                id: {
+                    [Op.in]: muscle_ids
+                }
+            }
+        });
+
+        if(muscles.length !== muscle_ids.length) {
+            return res.status(404).json({message: 'muscles not found'});
+        }
+
+
         const exercise = await Exercises.create({
             name,
             type_id,
@@ -130,20 +145,11 @@ exports.create = async (req, res, next) => {
             default_weight,
             description,
             progression_from,
+            progress_to,
         });
 
-        if (muscles && muscles.length > 0) {
-            const muscleInstances = await Promise.all(
-                muscles.map(async (muscleName) => {
-                    const [muscle] = await Muscles.findOrCreate({
-                        where: { name: muscleName },
-                    });
-                    return muscle;
-                })
-            );
-            await exercise.addMuscles(muscleInstances);
-        }
-
+        await exercise.addMuscles(muscles);
+        
         const result = await Exercises.findByPk(exercise.id, {
             include: {
                 model: Muscles,

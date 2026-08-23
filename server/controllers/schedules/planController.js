@@ -92,6 +92,13 @@ exports.createPlan = async (req, res, next) => {
             return res.status(400).json({message: `plan_type must be one of: ${validTypes.join(', ')}`});
         }
 
+        const schedule = await Schedules.findOne({
+            where: {id: schedule_id, user_id: req.user.id},
+        });
+        if (!schedule) {
+            return res.status(404).json({ message: 'Schedule not found' });
+        }
+
         const plan = await Plans.create({
             schedule_id,
             name,
